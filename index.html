@@ -21,9 +21,23 @@
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
+      overflow: hidden;
+    }
+
+    /* パーティクル */
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
     }
 
     .container {
+      position: relative;
+      z-index: 1;
       text-align: center;
       padding: 1.5rem 2rem 0;
       max-width: 640px;
@@ -37,6 +51,9 @@
 
     .logo-area {
       margin-bottom: 1.2rem;
+      opacity: 0;
+      animation: fadeIn 1.2s ease forwards;
+      animation-delay: 0.3s;
     }
 
     .logo-area img {
@@ -50,6 +67,9 @@
       height: 2px;
       background-color: #555;
       margin: 1.2rem auto;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
+      animation-delay: 1s;
     }
 
     .message {
@@ -58,6 +78,9 @@
       color: #dddddd;
       margin-bottom: 0.6rem;
       letter-spacing: 0.1em;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
+      animation-delay: 1.3s;
     }
 
     .sub-message {
@@ -65,6 +88,9 @@
       color: #888888;
       line-height: 1.8;
       letter-spacing: 0.05em;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
+      animation-delay: 1.7s;
     }
 
     .open-date {
@@ -75,6 +101,9 @@
       font-size: 0.8rem;
       letter-spacing: 0.2em;
       color: #aaaaaa;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
+      animation-delay: 2.1s;
     }
 
     .open-date span {
@@ -86,16 +115,54 @@
     }
 
     footer {
+      position: relative;
+      z-index: 1;
       font-size: 0.65rem;
       color: #444444;
       letter-spacing: 0.1em;
       text-align: center;
       padding: 1rem;
       width: 100%;
+      opacity: 0;
+      animation: fadeIn 1s ease forwards;
+      animation-delay: 2.4s;
+    }
+
+    /* ローディングバー */
+    .progress-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: #111;
+      z-index: 10;
+    }
+
+    .progress-bar::after {
+      content: '';
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #333, #888, #333);
+      animation: progress 4s ease-in-out infinite;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes progress {
+      0%   { width: 0%; opacity: 1; }
+      70%  { width: 100%; opacity: 1; }
+      100% { width: 100%; opacity: 0; }
     }
   </style>
 </head>
 <body>
+  <canvas id="particles"></canvas>
+
   <div class="container">
     <div class="logo-area">
       <img src="./logo.png" alt="長尾工業株式会社">
@@ -115,5 +182,47 @@
   </div>
 
   <footer>&copy; 長尾工業株式会社 All Rights Reserved.</footer>
+
+  <div class="progress-bar"></div>
+
+  <script>
+    // パーティクル
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = Array.from({ length: 60 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.2 + 0.3,
+      dx: (Math.random() - 0.5) * 0.3,
+      dy: (Math.random() - 0.5) * 0.3,
+      alpha: Math.random() * 0.4 + 0.1,
+    }));
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${p.alpha})`;
+        ctx.fill();
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+      });
+      requestAnimationFrame(draw);
+    }
+
+    draw();
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
 </body>
 </html>
